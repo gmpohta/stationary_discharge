@@ -6,7 +6,7 @@ import math
 A = 8e-2
 l = 1e-3
 
-N = 40
+N = 10
 lim = [0, 1]
 
 def rootNSystem(x0, fName):
@@ -77,12 +77,11 @@ def solve(xa, y_init):
 
     return ya, np.max(abs(f(ya)))
 
-xa_old = np.linspace(lim[0], lim[1], N+1)
-y_init_old = 0.1*(0.1+xa_old**2)
 
-for i in [N]:
-    xa = np.linspace(lim[0], lim[1], i+1)
-    y_init = np.interp(xa, xa_old, y_init_old) 
+
+for i in range(100):
+    xa_old = np.linspace(lim[0], lim[1], N+1)
+    y_init_old = np.random.rand(N+1)+1e-8
 
     ya, err = solve(xa, y_init)
 
