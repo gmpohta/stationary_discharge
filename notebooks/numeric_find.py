@@ -1,7 +1,10 @@
-import copy
 import matplotlib.pylab as plt
 import numpy as np
-import math
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+import solve as s
 
 A = 8e-2
 l = 1e-3
@@ -9,87 +12,123 @@ l = 1e-3
 N = 10
 lim = [0, 1]
 
-def rootNSystem(x0, fName):
-    H = 1e-6
-    Narg = len(x0)
-    
-    def fA(x0):
-        wsum = np.zeros((Narg, Narg))
+xa = np.linspace(lim[0], lim[1], N+1)
+y_init = [
+    1.510521973124779316e-01,
+    3.420328195211031486e-01,
+    5.153125828168685363e-01,
+    5.097275891635327794e-01,
+    5.911460980395073506e-01,
+    8.451869502258292366e-01,
+    8.818033806365552785e-01,
+    4.849358663794973157e-01,
+    4.377341772332690728e-01,
+    6.901838387776090267e-01,
+    2.334851988017859203e-01
+]
 
-        for j in range(Narg):
-            xim = copy.deepcopy(x0)
-            xip = copy.deepcopy(x0)
-            
-            xim[j] += -H
-            xip[j] += H
+ya, err = s.solve(xa, y_init, A, l)
 
-            wsum[:, j] = (fName(xip) - fName(xim))/2/H
-        return wsum
+y_init = [
+    3.715620373262456533e-01,
+    3.341141001524689652e-02,
+    3.161869506933641660e-01,
+    1.845236034487500176e-01,
+    7.385491696525918748e-01,
+    7.731097835167389798e-01,
+    1.454582122767095753e-01,
+    6.361586968634818096e-01,
+    1.233247265084644329e-01,
+    2.602281450463738710e-01,
+    8.589821764127320014e-02,
+]
 
-    hi = H*np.ones(Narg)
-    xi = np.array(x0, float)
+ya2, err2 = s.solve(xa, y_init, A, l)
 
-    for i in range(100):
-        A = fA(xi)
-        B = -np.array(fName(xi))
-        hi = np.linalg.solve(A, B)
+y_init = [
+    5.984537323949929988e-01,
+    6.933258836006712666e-01,
+    7.402601758358836603e-01,
+    7.533193040883313651e-01,
+    6.261688162622645049e-01,
+    2.501514534154598013e-01,
+    8.082730862036641151e-01,
+    1.580423573456897768e-01,
+    5.783645721110817206e-01,
+    5.406733327510451215e-01,
+    8.445655330809748174e-01,
+]
 
-        xi += hi
+ya3, err3 = s.solve(xa, y_init, A, l)
 
-        if max(abs(hi)) < 1e-13:
-            break
+y_init = [
+    9.734441718638628949e-01,
+    6.063005278393093223e-01,
+    6.255517555519903850e-01,
+    5.674504169425915318e-02,
+    7.377050929818856906e-02,
+    3.137828571040930936e-01,
+    9.497864546486035620e-01,
+    1.260203702186707964e-01,
+    8.396213513936240380e-02,
+    4.226182544759717330e-01,
+    7.638580690785343741e-01,
+]
 
-    return xi
+ya4, err4 = s.solve(xa, y_init, A, l)
 
-def solve(xa, y_init):
-    N = len(xa) - 1
-    d = (xa[-1] - xa[0])/N
-    
-    def f(y):
-        out = np.zeros(N+1)
+y_init = [
+    2.408421681222799524e-03,
+    4.713537187156779940e-02,
+    1.824684260415793818e-02,
+    4.323458997438415358e-02,
+    2.536930902895567427e-02,
+    9.488932219179009586e-02,
+    2.348984389501158204e-02,
+    1.247177653250572393e-02,
+    6.160922826562237158e-03,
+    3.928352738976951392e-02,
+    2.283449184688681605e-02
+]
 
-        i10 = 0
-        for i in range(N):
-            i10 += (y[i+1]+y[i])/(xa[i] - xa[0] + d/2)**0.5
+ya5, err5 = s.solve(xa, y_init, A, l)
 
-        out[0] = y[0] - l*d/2*i10
+y_init = [
+    1.346731154753693900e-03,
+    2.447946832001905715e-02,
+    3.978957639002941166e-02,
+    3.629825344405724491e-02,
+    3.320366631530169421e-02,
+    4.238827145577898220e-02,
+    1.014801260143729025e-02,
+    5.649161040537923478e-02,
+    2.338924579391230343e-02,
+    8.167730604971057407e-02,
+    7.869051771693229280e-02
+]
 
-        for i in range(1, N):
-            i1 = 0
-            for j in range(i, N):
-                i1 += (y[j+1] + y[j])/(xa[j] - xa[i] + d/2)**0.5
+ya6, err6 = s.solve(xa, y_init, A, l)
 
-            i2 = 0
-            for j in range(i):
-                i2 += y[j+1] + y[j]
+delt = 1e-4
+for i in range(200):
+    xa = np.linspace(lim[0], lim[1], N+1)
+    y_init = 0.1*np.random.rand(N+1)+1e-8
 
-            out[i] = y[i]/A - l*d/2/A*i1 + y[0]/y[i] + (y[i+1] - y[i-1])/4/y[i]/y[i]*i2 - 1
-        
-        i2N = 0
-        for i in range(N):
-            i2N += y[i+1] + y[i]
+    ya_f, err_f = s.solve(xa, y_init, A, l)
 
-        out[-1] = y[-1]/A + y[0]/y[-1] +(3*y[-1] - 4*y[-2] + y[-3])/4/y[-1]/y[-1]*i2N - 1
+    if err_f < delt and abs(ya_f[-1] - ya[-1]) > delt and abs(ya_f[-1] - ya2[-1]) > delt and abs(ya_f[-1] - ya3[-1]) > delt and abs(ya_f[-1] - ya4[-1]) > delt:
+        break
 
-        return out
+with open('y_init.txt', 'w') as f:
+    f.write(",\n".join(f"{x:.18e}" for x in y_init))
 
-    ya = rootNSystem(y_init, f)
-
-    return ya, np.max(abs(f(ya)))
-
-
-
-for i in range(100):
-    xa_old = np.linspace(lim[0], lim[1], N+1)
-    y_init_old = np.random.rand(N+1)+1e-8
-
-    ya, err = solve(xa, y_init)
-
-    y_init_old = ya
-    xa_old = xa
-
-    plt.plot(xa, ya, 'b', label="err = %.4f" % (err))
-    plt.plot(xa, y_init, 'r')
+plt.plot(xa, ya, 'b', label="err = %.4f" % (err))
+plt.plot(xa, ya2, 'b--', label="err = %.4f" % (err2))
+plt.plot(xa, ya3, 'b--', label="err = %.4f" % (err3))
+plt.plot(xa, ya4, 'b--', label="err = %.4f" % (err4))
+plt.plot(xa, ya5, 'b--', label="err = %.4f" % (err5))
+plt.plot(xa, ya6, 'b--', label="err = %.4f" % (err6))
+plt.plot(xa, ya_f, 'r', label="err = %.4f" % (err_f))
 
 plt.grid()
 plt.legend()
