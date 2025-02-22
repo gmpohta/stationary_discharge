@@ -55,13 +55,13 @@ def solve(xa, y_init, A, l):
             for j in range(i):
                 i2 += y[j+1] + y[j]
 
-            out[i] = y[i]/A - l*d/2/A*i1 + y[0]/y[i] + (y[i+1] - y[i-1])/4/y[i]/y[i]*i2 - 1
+            out[i] = y[i]/A - l*d/2/A*i1 + (y[i+1] - y[i-1])/4/y[i]/y[i]*i2 - 1 + y[0]*y[0]/y[i]/y[i]*(y[i+1] - y[i-1])/(-3*y[0] + 4*y[1] - y[2])
         
         i2N = 0
         for i in range(N):
             i2N += y[i+1] + y[i]
 
-        out[-1] = y[-1]/A + y[0]/y[-1] +(3*y[-1] - 4*y[-2] + y[-3])/4/y[-1]/y[-1]*i2N - 1
+        out[-1] = y[-1]/A +(3*y[-1] - 4*y[-2] + y[-3])/4/y[-1]/y[-1]*i2N - 1 + y[0]*y[0]/y[-1]/y[-1]*(3*y[-1] - 4*y[-2] + y[-3])/(-3*y[0] + 4*y[1] - y[2])
 
         return out
 
