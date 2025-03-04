@@ -1,34 +1,6 @@
 import matplotlib.pylab as plt
-import numpy as np
-import sys
-import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
-import solve as s
-
-sea = 2e-20
-si = 1e-20
-eps0 = 8.85e-12
-fa = 1100
-me = 9.1e-31
-qe = 1.6e-19
-mi = 40*1.66e-27
-
-P = 3e-4
-B = 0.2
-na = P/300/1.380/1e-23 * 133
-
-A = si/2/sea*eps0*B**2/me/na
-l = (sea*si*mi*fa/qe)**0.5*na/B
-print(A, l)
-
-N = 20
-lim = [0, 1]
-
-xa_old = np.linspace(lim[0], lim[1], N+1)
-A=0.005
-l=0.02
-y_init_old = [1.568248474348984806e-05,
+y1 = [1.568248474348984806e-05,
 4.301081749552605613e-05,
 3.482090865629946326e-05,
 1.832141024737324935e-05,
@@ -50,9 +22,9 @@ y_init_old = [1.568248474348984806e-05,
 3.489338035343898385e-05,
 1.812335419453169153e-05
 ]
-'''A=0.01
-l=0.01456
-y_init_old = [8.387720690498912373e-05,
+
+y2 = [1.568248474348984806e-05,
+8.387720690498912373e-05,
 9.458598264888124049e-05,
 8.056962225535480786e-05,
 3.837855668813065844e-04,
@@ -73,26 +45,9 @@ y_init_old = [8.387720690498912373e-05,
 1.547087054867490809e-04,
 1.314460838983214650e-04,
 9.966469868671129701e-05
-]'''
+]
 
-ya, err = s.solve(xa_old, y_init_old, A, l)
-plt.plot(xa_old, ya, 'r', label="err = %.4f" % (err))
-
-for i in range(2):
-    xa = np.linspace(lim[0], lim[1], N+i+1)
-    y_init = np.interp(xa, xa_old, y_init_old)
-
-    ya, err = s.solve(xa, y_init, A, l)
-
-    y_init_old = ya
-    xa_old = xa
-
-with open('y_init.txt', 'w') as f:
-    f.write(",\n".join(f"{x:.18e}" for x in ya))
-
-print(ya[0])
-
-plt.plot(xa, ya, 'b', label="err = %.4f" % (err))
+plt.plot(y1)
 
 plt.grid()
 plt.legend()

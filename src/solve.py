@@ -28,7 +28,7 @@ def rootNSystem(x0, fName):
 
         xi += hi
 
-        if max(abs(hi)) < 1e-13:
+        if max(abs(hi)) < 1e-8:
             break
 
     return xi
@@ -40,29 +40,34 @@ def solve(xa, y_init, A, l):
     def f(y):
         out = np.zeros(N+1)
 
-        i10 = 0
+        intI0 = 0
         for i in range(N):
-            i10 += (y[i+1]+y[i])/(xa[i] - xa[0] + d/2)**0.5
+            intI0 += (y[i+1]+y[i])/(xa[i] - xa[0] + d/2)**0.5
+        intI0 *= d/2
 
-        out[0] = y[0] - l*d/2*i10
+        intPN = 0
+        for i in range(N):
+            intPN += y[i+1] + y[i]
+        intPN *= d/2
+# уравнение (16) для i=N
+        out[0] = y[-1]/A + (3*y[-1]-4*y[-2]+y[-3])/y[-1]/y[-1]*(intPN/2/d) + (1 - y[0]/A + l/A*intI0)*y[0]*y[0]/y[-1]/y[-1]*(3*y[-1]-4*y[-2]+y[-3])/(-3*y[0]+4*y[1]-y[2]) - 1
 
+# уравнение (16) для внутренних узлов
         for i in range(1, N):
-            i1 = 0
+            intI = 0
             for j in range(i, N):
-                i1 += (y[j+1] + y[j])/(xa[j] - xa[i] + d/2)**0.5
-
-            i2 = 0
+                intI += (y[j+1] + y[j])/(xa[j] - xa[i] + d/2)**0.5
+            intI *= d/2
+            
+            intP = 0
             for j in range(i):
-                i2 += y[j+1] + y[j]
+                intP += y[j+1] + y[j]
+            intP *= d/2
 
-            out[i] = y[i]/A - l*d/2/A*i1 + (y[i+1] - y[i-1])/4/y[i]/y[i]*i2 - 1 + y[0]*y[0]/y[i]/y[i]*(y[i+1] - y[i-1])/(-3*y[0] + 4*y[1] - y[2])
+            out[i] = y[i]/A - l/A*intI + (y[i+1]-y[i-1])/y[i]/y[i]*(intP/2/d) + (1 - y[0]/A + l/A*intI0)*y[0]*y[0]/y[i]/y[i]*(y[i+1]-y[i-1])/(-3*y[0]+4*y[1]-y[2]) - 1
+# уравнение (17)
+        out[-1] = l*intI0 - y[0]
         
-        i2N = 0
-        for i in range(N):
-            i2N += y[i+1] + y[i]
-
-        out[-1] = y[-1]/A +(3*y[-1] - 4*y[-2] + y[-3])/4/y[-1]/y[-1]*i2N - 1 + y[0]*y[0]/y[-1]/y[-1]*(3*y[-1] - 4*y[-2] + y[-3])/(-3*y[0] + 4*y[1] - y[2])
-
         return out
 
     ya = rootNSystem(y_init, f)
